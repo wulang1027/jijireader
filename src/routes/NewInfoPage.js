@@ -40,6 +40,8 @@ const request = require('superagent');
 const infolib = require('../lib/info');
 const eth = require('../lib/ethereum');
 
+const constant = require('../lib/statics');
+
 /* global web3 */
 
 function FormRow(props) {
@@ -79,7 +81,7 @@ ${this.state.private}
           const hashes = body.trim().split('\n').map((line) => {
             return JSON.parse(line);
           });
-          request.post('/api/encrypt')
+          request.post(`${constant.encrypt}/api/encrypt`)
           .send({ cnt: hashes[1].Hash })
           .end((encryptErr, encryptRes) => {
             const info = hashes.slice(0);
@@ -108,7 +110,7 @@ ${this.state.private}
   }
 
   render() {
-    const options = this.props.tags || ['短篇小说', '本地信息'];
+    const options = this.props.tags ? this.props.tags.map(item => item.tag) : ['短篇小说', '本地信息'];
 
     let jumpurl;
     if (this.state.position) {

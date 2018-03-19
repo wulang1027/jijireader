@@ -5,7 +5,6 @@
     "build": "roadhog build",
     "test": "mocha",
     "lint": "eslint --ext .js src test",
-    "precommit": "npm run lint"
   },
   "engines": {
     "install-node": "6.11.1"
