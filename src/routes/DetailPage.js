@@ -90,6 +90,11 @@ class IndexPage extends React.Component {
   }
 
   render() {
+    const price = this.props.price ?
+    (web3.toBigNumber(this.props.price) /
+      web3.toBigNumber('1000000000000000000')).toFixed(5) : 0;
+    const cny = ((this.props.priceCNY * price) * this.state.item.price) /
+    web3.toBigNumber('1000000000000000000');
     return (
       <div className={styles.normal}>
         <Header />
@@ -142,7 +147,7 @@ class IndexPage extends React.Component {
                       });
                     }
                   }
-                  >花费 {(this.state.item.price / web3.toBigNumber('1000000000000000000')).toFixed(0)} 个唧唧币购买付费部分
+                  >花费 {(this.state.item.price / web3.toBigNumber('1000000000000000000')).toFixed(0)} 个唧唧币 ({cny} 元) 购买付费部分
                   </Button> :
                   <Button disabled>您的余额不足，无法购买</Button>}
                 {this.props.signCode ? null :
@@ -183,5 +188,7 @@ export default connect((state) => {
     reward: state.main.reward,
     signCode: state.main.signCode,
     balance: state.main.balance,
+    price: state.main.price,
+    priceCNY: state.main.priceCNY,
   };
 })(IndexPage);

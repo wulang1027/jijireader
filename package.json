@@ -4,7 +4,7 @@
     "start": "roadhog server",
     "build": "roadhog build",
     "test": "mocha",
-    "lint": "eslint --ext .js src test",
+    "lint": "eslint --ext .js src test"
   },
   "engines": {
     "install-node": "6.11.1"

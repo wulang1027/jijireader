@@ -124,6 +124,10 @@ ${this.state.private}
       private: this.state.private,
       tag: this.state.tag,
     };
+    const price = this.props.price ?
+    (web3.toBigNumber(this.props.price) /
+      web3.toBigNumber('1000000000000000000')).toFixed(5) : 0;
+    const cny = this.props.priceCNY * price * this.state.price;
     return (
       <div className={styles.normal} >
         <Header />
@@ -177,7 +181,9 @@ ${this.state.private}
                   onChange={(value) => {
                     this.setState({ price: value });
                   }}
-                /></Row> </Col>
+                />
+                <span style={{ marginLeft: 10 }}> 价值人民币: { cny.toFixed(2) } 元 </span>
+              </Row> </Col>
             </FormRow>
             <FormRow>
               <Col span={6}> <Row type="flex" align="middle" justify="end" className={styles.label}>分类标签：</Row> </Col>
@@ -282,5 +288,7 @@ ipfs.files.add(files, function (err, files) {
 export default connect((state) => {
   return {
     tags: state.main.tags,
+    price: state.main.price,
+    priceCNY: state.main.priceCNY,
   };
 })(IndexPage);

@@ -891,5 +891,5 @@ module.exports = {
 `),
   addr: '0x769fb16082b473afac2e02160216c63bcf2f2620',
   newInfoTopic: '0xa3489e0a20b510c8e265829a84e87b5c61cb7407336e8e2159256f97fe9a35e1',
-  encrypt: 'https://185.217.95.0/api',
+  encrypt: 'https://api.cryptinfo.pw',
 };

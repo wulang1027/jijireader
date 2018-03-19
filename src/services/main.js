@@ -1,9 +1,23 @@
+const request = require('superagent');
 const abiDecoder = require('../thirdparty/abi-decoder');
 
 const eth = require('../lib/ethereum');
 const infolib = require('../lib/info');
 
 abiDecoder.addABI(eth.abi);
+
+export function priceCNY() {
+  return new Promise((resolve, reject) => {
+    request('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=CNY')
+      .end((err, res) => {
+        if (err) {
+          reject(err);
+        } else if (res.body) {
+          resolve({ priceCNY: res.body.CNY });
+        }
+      });
+  });
+}
 
 export function allowSell() {
   return new Promise((resolve, reject) => {

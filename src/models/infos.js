@@ -14,6 +14,7 @@ export default {
       dispatch({ type: 'totalFetch', payload: {} });
       dispatch({ type: 'allowSell', payload: {} });
       dispatch({ type: 'tagsFetch', payload: {} });
+      dispatch({ type: 'priceCNY', payload: {} });
     },
   },
 
@@ -106,6 +107,11 @@ export default {
       const infos = yield call(services.scores, data);
       yield put({ type: 'save', payload: infos });
       yield put({ type: 'save', payload: { loading: false } });
+    },
+
+    *priceCNY({ payload }, { call, put }) {
+      const data = yield call(services.priceCNY, payload);
+      yield put({ type: 'save', payload: data });
     },
 
     *allowSell({ payload }, { call, put }) {
