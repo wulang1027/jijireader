@@ -18,7 +18,6 @@ import 'antd/lib/menu/style';
 
 const eth = require('../lib/ethereum');
 
-/* global web3 */
 class Example extends React.Component {
   componentDidMount() {
     setInterval(() => {
@@ -54,7 +53,7 @@ class Example extends React.Component {
         {tags}
       </Menu>
     );
-    const balance = this.props.balance ? (web3.toBigNumber(this.props.balance) / web3.toBigNumber(1000000000000000000)).toFixed(3).toString() : '0';
+    const balance = this.props.balance ? (eth.toBigNumber(this.props.balance) / eth.toBigNumber(1000000000000000000)).toFixed(3).toString() : '0';
     return (
       <Row style={{ padding: '20px 0' }} align="middle" type="flex">
         <Col type="flex" style={{ marginLeft: 30 }}>

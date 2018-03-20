@@ -5,6 +5,7 @@ const request = require('superagent');
 const abiDecoder = require('../thirdparty/abi-decoder');
 const infolib = require('../lib/info');
 const constant = require('./statics');
+const BN = require('bignumber.js');
 
 const infuraRequest = (method, param, callback) => {
   const url = `https://api.infura.io/v1/jsonrpc/ropsten/${method}?token=6xlgwFuipluDSQ6TvOTn&params=${param}`;
@@ -22,18 +23,23 @@ const padding = (size, src) => {
 /* global web3 */
 class MyContract {
   constructor(abi, addr) {
-    this.web3 = web3;
     this.abi = abi;
     this.addr = addr;
     this.abiDecoder = abiDecoder;
     this.abiDecoder.addABI(abi);
+    this.BN = BN;
 
     if (typeof web3 !== 'undefined') {
+      this.web3 = web3;
       this.ethrw = new Eth(web3.currentProvider);
       const contract = new EthContract(this.ethrw);
       this.rwContract = contract(abi).at(addr);
       this.getAccounts = web3.eth.getAccounts;
     }
+  }
+
+  toBigNumber(item) {
+    return new this.BN(item);
   }
 
   checkTx(tx, callback) {  // eslint-disable-line
@@ -43,10 +49,8 @@ class MyContract {
   }
 
   allowSell(callback) {
-    this.getAccounts((accerr, accounts) => {
-      infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x36e0f6cc000000000000000000000000${accounts[0].substr(2)}"},"latest"]`, (err, res) => {
-        callback(null, res.body.result);
-      });
+    infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x36e0f6cc"},"latest"]`, (err, res) => {
+      callback(null, res.body.result);
     });
   }
 
@@ -66,7 +70,7 @@ class MyContract {
 
   total(callback) {
     infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x95604db9"},"latest"]`, (err, res) => {
-      callback(null, web3.toBigNumber(res.body.result).toNumber());
+      callback(null, this.toBigNumber(res.body.result).toNumber());
     });
   }
 
@@ -111,15 +115,19 @@ class MyContract {
       const item = decodedLogs[0]; // We add NewTag and New Hash, So We should be careful
       const detail = infolib.decode(hash, item);
       // 检查当前用户是否已经购买过这个文章，即使购买过，仍然需要给解密服务器授权才可以获取其内容
-      this.getAccounts((errAccount, accounts) => {
-        infuraRequest('eth_call',
-          `[{"to":"${this.addr}", "data":"0xa1a63f65${padding(64, accounts[0].substr(2))}${padding(64, detail.id)}"},"latest"]`, (errCall, resCall) => {
-            detail.buyed = resCall.body.result && resCall.body.result.endsWith('1');
-            request.get(`https://ipfs.infura.io/ipfs/${detail.hash}`)
-            .end((puberr, pubres) => {
-              detail.public = pubres.text;
-              // 获取内容的动态部分，包括点赞数、踩数、价格和当前地址
-              this.scores({ infos: [detail] }, () => {
+      request.get(`https://ipfs.infura.io/ipfs/${detail.hash}`)
+      .end((puberr, pubres) => {
+        detail.public = pubres.text;
+        // 获取内容的动态部分，包括点赞数、踩数、价格和当前地址
+        this.scores({ infos: [detail] }, () => {
+          if (!this.getAccounts) {
+            callback(null, detail);
+            return;
+          }
+          this.getAccounts((errAccount, accounts) => {
+            infuraRequest('eth_call',
+              `[{"to":"${this.addr}", "data":"0xa1a63f65${padding(64, accounts[0].substr(2))}${padding(64, detail.id)}"},"latest"]`, (errCall, resCall) => {
+                detail.buyed = resCall.body.result && resCall.body.result.endsWith('1');
                 if (code) { // 如果知道当前的读者是谁，就尝试获得加密内容
                   request.post(`${constant.encrypt}/decrypt`)
                     .send({
@@ -145,56 +153,56 @@ class MyContract {
                   callback(null, detail);
                 }
               });
-            });
           });
+        });
       });
     });
   }
 
   buyedTotal(callback) {
     infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x5bac8714"},"latest"]`, (err, res) => {
-      callback(err, this.web3.toBigNumber(res.body.result.substr(2)));
+      callback(err, this.toBigNumber(res.body.result.substr(2)));
     });
   }
 
   authorTotal(author, callback) {
     infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x38a0f6d4${padding(64, author)}"},"latest"]`, (err, res) => {
-      callback(err, this.web3.toBigNumber(res.body.result.substr(2)));
+      callback(err, this.toBigNumber(res.body.result.substr(2)));
     });
   }
 
   geoTotal(geos, callback) {
-    let arr = padding(64, this.web3.toBigNumber(geos.geos.length).toString(16));
+    let arr = padding(64, this.toBigNumber(geos.geos.length).toString(16));
     geos.geos.forEach((geo) => {
-      arr = `${arr}${padding(64, this.web3.toBigNumber(geo.id).toString(16))}`;
+      arr = `${arr}${padding(64, this.toBigNumber(geo.id).toString(16))}`;
     });
     infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0xf984b8350000000000000000000000000000000000000000000000000000000000000020${arr}"},"latest"]`, (err, res) => {
       callback(err, res.body.result.substr(130).match(/.{1,64}/g).map((item) => {
-        return this.web3.toBigNumber(item);
+        return this.toBigNumber(item);
       }));
     });
   }
 
   tagTotal(tags, callback) {
-    let arr = padding(64, this.web3.toBigNumber(tags.tags.length).toString(16));
+    let arr = padding(64, this.toBigNumber(tags.tags.length).toString(16));
     tags.tags.forEach((tag) => {
-      arr = `${arr}${padding(64, this.web3.toBigNumber(tag.id).toString(16))}`;
+      arr = `${arr}${padding(64, this.toBigNumber(tag.id).toString(16))}`;
     });
     infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x1dd894900000000000000000000000000000000000000000000000000000000000000020${arr}"},"latest"]`, (err, res) => {
       callback(err, res.body.result.substr(130).match(/.{1,64}/g).map((item) => {
-        return this.web3.toBigNumber(item);
+        return this.toBigNumber(item);
       }));
     });
   }
 
   scores(infos, callback) {
-    let arr = padding(64, this.web3.toBigNumber(infos.infos.length).toString(16));
+    let arr = padding(64, this.toBigNumber(infos.infos.length).toString(16));
     infos.infos.forEach((info) => {
-      arr = `${arr}${padding(64, this.web3.toBigNumber(info.id).toString(16))}`;
+      arr = `${arr}${padding(64, this.toBigNumber(info.id).toString(16))}`;
     });
     infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x9b51fbcd0000000000000000000000000000000000000000000000000000000000000020${arr}"},"latest"]`, (err, res) => {
       const retvalues = res.body.result.substr(258).match(/.{1,64}/g).map((item) => {
-        return this.web3.toBigNumber(`0x${item}`);
+        return this.toBigNumber(`0x${item}`);
       });
       const retnumbers = retvalues[0].toNumber();
       infos.infos.forEach((info, idx) => {
@@ -211,7 +219,7 @@ class MyContract {
     infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x84837ee1"},"latest"]`, (err, res) => {
       const infoIDs = res.body.result.trim().substr(2).match(/.{1,64}/g)
       .filter((item) => {
-        return web3.toBigNumber(item) > 0;
+        return this.toBigNumber(item) > 0;
       })
       .map((item) => {
         return `"0x${item}"`;
@@ -232,7 +240,7 @@ class MyContract {
   listTag(tagID, start, limit, callback) {
     let reverseStart = start - limit;
     if (reverseStart < 0) reverseStart = 0;
-    infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0xf648c5c0${padding(64, web3.toBigNumber(tagID).toString(16))}${padding(64, web3.toBigNumber(reverseStart).toString(16))}${padding(64, web3.toBigNumber(limit).toString(16))}"}, "latest"]`, (err, res) => {
+    infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0xf648c5c0${padding(64, this.toBigNumber(tagID).toString(16))}${padding(64, this.toBigNumber(reverseStart).toString(16))}${padding(64, this.toBigNumber(limit).toString(16))}"}, "latest"]`, (err, res) => {
       const infoids = res.body.result.substr(130).match(/.{1,64}/g).map((item) => {
         return `0x${item}`;
       });
@@ -243,7 +251,7 @@ class MyContract {
   listBuyed(start, limit, callback) {
     let reverseStart = start - limit;
     if (reverseStart < 0) reverseStart = 0;
-    infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x55ed01aa${padding(64, web3.toBigNumber(reverseStart).toString(16))}${padding(64, web3.toBigNumber(limit).toString(16))}"}, "latest"]`, (err, res) => {
+    infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x55ed01aa${padding(64, this.toBigNumber(reverseStart).toString(16))}${padding(64, this.toBigNumber(limit).toString(16))}"}, "latest"]`, (err, res) => {
       const infoids = res.body.result.substr(130).match(/.{1,64}/g).map((item) => {
         return `0x${item}`;
       });
@@ -254,7 +262,7 @@ class MyContract {
   listAuthor(author, start, limit, callback) {
     let reverseStart = start - limit;
     if (reverseStart < 0) reverseStart = 0;
-    infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0xe7a5862f${padding(64, author)}${padding(64, web3.toBigNumber(reverseStart).toString(16))}${padding(64, web3.toBigNumber(limit).toString(16))}"}, "latest"]`, (err, res) => {
+    infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0xe7a5862f${padding(64, author)}${padding(64, this.toBigNumber(reverseStart).toString(16))}${padding(64, this.toBigNumber(limit).toString(16))}"}, "latest"]`, (err, res) => {
       const infoids = res.body.result.substr(130).match(/.{1,64}/g).map((item) => {
         return `0x${item}`;
       });
@@ -265,7 +273,7 @@ class MyContract {
   listGeo(tagID, start, limit, callback) {
     let reverseStart = start - limit;
     if (reverseStart < 0) reverseStart = 0;
-    infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x334271b6${padding(64, web3.toBigNumber(tagID).toString(16))}${padding(64, web3.toBigNumber(reverseStart).toString(16))}${padding(64, web3.toBigNumber(limit).toString(16))}"}, "latest"]`, (err, res) => {
+    infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x334271b6${padding(64, this.toBigNumber(tagID).toString(16))}${padding(64, this.toBigNumber(reverseStart).toString(16))}${padding(64, this.toBigNumber(limit).toString(16))}"}, "latest"]`, (err, res) => {
       const infoids = res.body.result.substr(130).match(/.{1,64}/g).map((item) => {
         return `0x${item}`;
       });
@@ -279,7 +287,7 @@ class MyContract {
 
   listInfo(start, limit, callback) {
     const all = Array(...{ length: limit }).map((item, idx) => {
-      return web3.toBigNumber(start - idx);
+      return this.toBigNumber(start - idx);
     }).filter((item) => {
       return item > 0;
     }).map((item) => {

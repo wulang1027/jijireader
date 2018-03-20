@@ -42,8 +42,6 @@ const eth = require('../lib/ethereum');
 
 const constant = require('../lib/statics');
 
-/* global web3 */
-
 function FormRow(props) {
   return (
     <Row justify="center" type="flex" align={props.align || 'middle'} style={props.style || { marginBottom: 10 }} >{props.children}</Row>
@@ -94,7 +92,7 @@ ${this.state.private}
   submitWeb3(files) {
     eth.getAccounts((err, accounts) => {
       eth.rwContract.newInfo(this.state.title, files[0].Hash, `0x${files[1].Hash}`,
-        this.state.price * web3.toBigNumber('1000000000000000000'), this.state.tag, this.state.position,
+        this.state.price * eth.toBigNumber('1000000000000000000'), this.state.tag, this.state.position,
         { from: accounts[0] },
       )
         .then((tx) => {
@@ -125,8 +123,8 @@ ${this.state.private}
       tag: this.state.tag,
     };
     const price = this.props.price ?
-    (web3.toBigNumber(this.props.price) /
-      web3.toBigNumber('1000000000000000000')).toFixed(5) : 0;
+    (eth.toBigNumber(this.props.price) /
+      eth.toBigNumber('1000000000000000000')).toFixed(5) : 0;
     const cny = this.props.priceCNY * price * this.state.price;
     return (
       <div className={styles.normal} >

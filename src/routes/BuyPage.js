@@ -20,14 +20,13 @@ import Footer from '../components/Footer.js';
 
 const eth = require('../lib/ethereum');
 
-/* global web3 */
 class IndexPage extends React.Component {
   state = { amount: 0, money: 0 }
 
   render() {
     const price = this.props.price ?
-    (web3.toBigNumber(this.props.price) /
-      web3.toBigNumber('1000000000000000000')).toFixed(5) : 0;
+    (eth.toBigNumber(this.props.price) /
+    eth.toBigNumber('1000000000000000000')).toFixed(5) : 0;
     const cny = this.props.priceCNY * price * this.state.amount;
     return (
       <div className={styles.normal}>
@@ -44,8 +43,8 @@ class IndexPage extends React.Component {
                 style={{ width: 100 }}
                 value={this.state.amount}
                 onChange={(value) => {
-                  const money = ((value * web3.toBigNumber(this.props.price))
-                    / web3.toBigNumber('1000000000000000000')).toFixed(5);
+                  const money = ((value * eth.toBigNumber(this.props.price))
+                    / eth.toBigNumber('1000000000000000000')).toFixed(5);
                   this.setState({ amount: value, money });
                 }}
               />
@@ -54,7 +53,7 @@ class IndexPage extends React.Component {
                 style={{ width: 100 }}
                 value={this.state.money}
                 onChange={(value) => {
-                  const amount = ((value * web3.toBigNumber('1000000000000000000')) / web3.toBigNumber(this.props.price)).toFixed(0);
+                  const amount = ((value * eth.toBigNumber('1000000000000000000')) / eth.toBigNumber(this.props.price)).toFixed(0);
                   this.setState({ money: value, amount });
                 }}
               />
@@ -66,9 +65,9 @@ class IndexPage extends React.Component {
               <Button
                 onClick={() => {
                   eth.getAccounts((err, accounts) => {
-                    eth.rwContract.buy(this.state.amount * web3.toBigNumber('1000000000000000000'),
+                    eth.rwContract.buy(this.state.amount * eth.toBigNumber('1000000000000000000'),
                       { from: accounts[0],
-                        value: web3.toBigNumber(this.props.price) * this.state.amount,
+                        value: eth.toBigNumber(this.props.price) * this.state.amount,
                       },
                     )
                       .then((tx) => {

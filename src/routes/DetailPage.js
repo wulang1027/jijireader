@@ -23,7 +23,6 @@ const eth = require('../lib/ethereum');
 
 const ReactMarkdown = require('react-markdown');
 
-/* global web3 */
 class IndexPage extends React.Component {
   state = {
     item: {
@@ -91,10 +90,11 @@ class IndexPage extends React.Component {
 
   render() {
     const price = this.props.price ?
-    (web3.toBigNumber(this.props.price) /
-      web3.toBigNumber('1000000000000000000')).toFixed(5) : 0;
+    (eth.toBigNumber(this.props.price) /
+    eth.toBigNumber('1000000000000000000')).toFixed(5) : 0;
     const cny = ((this.props.priceCNY * price) * this.state.item.price) /
-    web3.toBigNumber('1000000000000000000');
+    eth.toBigNumber('1000000000000000000');
+    const youhavenowallet = `花费 ${cny.toFixed(2)} 元人民币就可以看到付费内容，但您貌似还没有安装 MetaMask 数字货币钱包`;
     return (
       <div className={styles.normal}>
         <Header />
@@ -120,12 +120,12 @@ class IndexPage extends React.Component {
                   onClick={this.dislike.bind(this)}
                 />
                 <span>评价文章您将获得 {this.props.reward ?
-                  this.props.reward / web3.toBigNumber('1000000000000000000').toFixed(4) : 0
+                  this.props.reward / eth.toBigNumber('1000000000000000000').toFixed(4) : 0
               } 唧唧币的奖励 </span>
               </Row>
             :
               <Row>
-                {this.state.item.buyed ? null : (this.props.balance - this.state.item.price) >= web3.toBigNumber('0') ?
+                {this.state.item.buyed ? null : (this.props.balance - this.state.item.price) >= eth.toBigNumber('0') ?
                   <Button
                     style={{ marginRight: 15 }}
                     onClick={() => {
@@ -148,9 +148,9 @@ class IndexPage extends React.Component {
                       });
                     }
                   }
-                  >花费 {(this.state.item.price / web3.toBigNumber('1000000000000000000')).toFixed(0)} 个唧唧币 ({cny.toFixed(2)} 元) 购买付费部分
-                  </Button> : this.state.item.price ?
-                    <Button disabled>您的余额不足，无法购买</Button> : null}
+                  >花费 {(this.state.item.price / eth.toBigNumber('1000000000000000000')).toFixed(0)} 个唧唧币 ({cny.toFixed(2)} 元) 购买付费部分
+                  </Button> : this.state.item.price ? eth.web3 ?
+                    <Button disabled>您的余额不足，无法购买</Button> : <span>{youhavenowallet}</span> : null}
                 {this.props.signCode ? null : this.state.item.buyed ?
                   <Button
                     onClick={() => {

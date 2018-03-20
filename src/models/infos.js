@@ -1,5 +1,7 @@
 import * as services from '../services/main';
 
+const eth = require('../lib/ethereum');
+
 export default {
 
   namespace: 'main',
@@ -8,13 +10,15 @@ export default {
 
   subscriptions: {
     setup({ dispatch, history }) {  // eslint-disable-line
-      dispatch({ type: 'balanceFetch', payload: {} });
-      dispatch({ type: 'priceFetch', payload: {} });
-      dispatch({ type: 'rewardFetch', payload: {} });
-      dispatch({ type: 'totalFetch', payload: {} });
+      if (eth.web3) {
+        dispatch({ type: 'balanceFetch', payload: {} });
+      }
       dispatch({ type: 'allowSell', payload: {} });
-      dispatch({ type: 'tagsFetch', payload: {} });
+      dispatch({ type: 'totalFetch', payload: {} });
+      dispatch({ type: 'rewardFetch', payload: {} });
+      dispatch({ type: 'priceFetch', payload: {} });
       dispatch({ type: 'priceCNY', payload: {} });
+      dispatch({ type: 'tagsFetch', payload: {} });
     },
   },
 

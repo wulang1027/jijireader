@@ -13,11 +13,12 @@ import 'antd/lib/spin/style';
 
 import styles from './Contents.css';
 
-/* global web3 */
+const eth = require('../lib/ethereum');
+
 const Example = (props) => {
   const cols = (props.infos || [])
   .sort((a, b) => {
-    return web3.toBigNumber(a.id) < web3.toBigNumber(b.id);
+    return eth.toBigNumber(a.id) < eth.toBigNumber(b.id);
   })
   .map((item, idx) => {
     return (
@@ -49,7 +50,7 @@ const Example = (props) => {
             <Row type="flex" align="middle">
               <Icon type="pay-circle" />
               <span style={{ marginLeft: 5 }}>
-                {(item.price / web3.toBigNumber(1000000000000000000)).toFixed(0)}
+                {(item.price / eth.toBigNumber(1000000000000000000)).toFixed(0)}
               </span>
             </Row>
           </Col>
