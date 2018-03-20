@@ -40,7 +40,7 @@ class IndexPage extends React.Component {
 
   loadEvent(id) {
     this.props.dispatch({ type: 'main/save', payload: { loading: true } });
-    eth.event(id, this.props.signCode, (err, item) => {
+    eth.event(id, this.props.signCode, this.state.item, (err, item) => {
       this.props.dispatch({ type: 'main/save', payload: { loading: false } });
       if (err) {
         message.error(err);

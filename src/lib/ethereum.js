@@ -108,16 +108,44 @@ class MyContract {
     });
   }
 
-  event(hash, code, callback) {
+  decrypt(code, detail, callback) { // eslint-disable-line
+    request.post(`${constant.encrypt}/decrypt`)
+    .send({
+      key: code,
+      msg: [
+          { id: detail.id },
+      ],
+    })
+    .end((decryptErr, decryptRes) => {
+      if (decryptErr) {
+        callback(decryptErr);
+      } else if (decryptRes.body.err) {
+        callback(null, detail);
+      } else {
+        request.get(`https://ipfs.infura.io/ipfs/${decryptRes.body.cnt}`)
+        .end((privateerr, privateres) => {
+          detail.private = privateres.text; // eslint-disable-line
+          callback(null, detail);
+        });
+      }
+    });
+  }
+
+  event(hash, code, detail, callback) {
+    // 如果已经知道code，并且已经取得了一部分内容，只需要取加密部分就好
+    if (code && detail) {
+      this.decrypt(code, detail, callback);
+      return;
+    }
     infuraRequest('eth_getTransactionReceipt', `["0x${hash}"]`, (err, res) => {
       const decodedLogs = this.abiDecoder.decodeLogs(res.body.result.logs)
       .filter((item) => { return item.name === 'NewInfo'; });
       const item = decodedLogs[0]; // We add NewTag and New Hash, So We should be careful
-      const detail = infolib.decode(hash, item);
+      detail = infolib.decode(hash, item); // eslint-disable-line
       // 检查当前用户是否已经购买过这个文章，即使购买过，仍然需要给解密服务器授权才可以获取其内容
       request.get(`https://ipfs.infura.io/ipfs/${detail.hash}`)
       .end((puberr, pubres) => {
-        detail.public = pubres.text;
+        detail.public = pubres.text; // eslint-disable-line
         // 获取内容的动态部分，包括点赞数、踩数、价格和当前地址
         this.scores({ infos: [detail] }, () => {
           if (!this.getAccounts) {
@@ -127,28 +155,9 @@ class MyContract {
           this.getAccounts((errAccount, accounts) => {
             infuraRequest('eth_call',
               `[{"to":"${this.addr}", "data":"0xa1a63f65${padding(64, accounts[0].substr(2))}${padding(64, detail.id)}"},"latest"]`, (errCall, resCall) => {
-                detail.buyed = resCall.body.result && resCall.body.result.endsWith('1');
+                detail.buyed = resCall.body.result && resCall.body.result.endsWith('1'); // eslint-disable-line
                 if (code) { // 如果知道当前的读者是谁，就尝试获得加密内容
-                  request.post(`${constant.encrypt}/decrypt`)
-                    .send({
-                      key: code,
-                      msg: [
-                          { id: detail.id },
-                      ],
-                    })
-                    .end((decryptErr, decryptRes) => {
-                      if (decryptErr) {
-                        callback(decryptErr);
-                      } else if (decryptRes.body.err) {
-                        callback(null, detail);
-                      } else {
-                        request.get(`https://ipfs.infura.io/ipfs/${decryptRes.body.cnt}`)
-                        .end((privateerr, privateres) => {
-                          detail.private = privateres.text;
-                          callback(null, detail);
-                        });
-                      }
-                    });
+                  this.decrypt(code, detail, callback);
                 } else {
                   callback(null, detail);
                 }
