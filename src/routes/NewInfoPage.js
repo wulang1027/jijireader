@@ -109,6 +109,7 @@ ${this.state.private}
 
   render() {
     const options = this.props.tags ? this.props.tags.map(item => item.tag) : ['短篇小说', '本地信息'];
+    if (!this.state.tag) this.state.tag = options[0];
 
     let jumpurl;
     if (this.state.position) {
