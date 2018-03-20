@@ -81,7 +81,7 @@ ${this.state.private}
           const hashes = body.trim().split('\n').map((line) => {
             return JSON.parse(line);
           });
-          request.post(`${constant.encrypt}/api/encrypt`)
+          request.post(`${constant.encrypt}/encrypt`)
           .send({ cnt: hashes[1].Hash })
           .end((encryptErr, encryptRes) => {
             const info = hashes.slice(0);

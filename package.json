@@ -4,7 +4,9 @@
     "start": "roadhog server",
     "build": "roadhog build",
     "test": "mocha",
-    "lint": "eslint --ext .js src test"
+    "lint": "eslint --ext .js src test",
+    "release": "node release.js",
+    "prerelease": "roadhog build"
   },
   "engines": {
     "install-node": "6.11.1"
@@ -18,8 +20,9 @@
     "etherscan-api": "^8.0.3",
     "ethjs-contract": "^0.1.9",
     "ethjs-query": "^0.3.3",
-    "ipfs-api": "^18.1.2",
+    "ipfs-api": "^18.2.0",
     "ngeohash": "^0.6.0",
+    "node-dir": "^0.1.17",
     "react": "^15.4.0",
     "react-dom": "^15.4.0",
     "react-google-maps": "^9.4.5",

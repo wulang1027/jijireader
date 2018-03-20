@@ -25,6 +25,10 @@ class IndexPage extends React.Component {
   state = { amount: 0, money: 0 }
 
   render() {
+    const price = this.props.price ?
+    (web3.toBigNumber(this.props.price) /
+      web3.toBigNumber('1000000000000000000')).toFixed(5) : 0;
+    const cny = this.props.priceCNY * price * this.state.amount;
     return (
       <div className={styles.normal}>
         <Header />
@@ -54,6 +58,9 @@ class IndexPage extends React.Component {
                   this.setState({ money: value, amount });
                 }}
               />
+            </Row>
+            <Row type="flex" justify="center" align="middle" style={{ marginTop: 20 }}>
+              <span>价值人民币 {cny.toFixed(2)} 元</span>
             </Row>
             <Row type="flex" justify="center" align="middle" style={{ marginTop: 20 }}>
               <Button
@@ -95,5 +102,8 @@ IndexPage.propTypes = {
 };
 
 export default connect((state) => {
-  return { price: state.main.price };
+  return {
+    price: state.main.price,
+    priceCNY: state.main.priceCNY,
+  };
 })(IndexPage);

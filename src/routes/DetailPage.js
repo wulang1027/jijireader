@@ -26,7 +26,6 @@ const ReactMarkdown = require('react-markdown');
 /* global web3 */
 class IndexPage extends React.Component {
   state = {
-    loading: true,
     item: {
       title: '正在加载中...',
       public: '',
@@ -41,12 +40,13 @@ class IndexPage extends React.Component {
   }
 
   loadEvent(id) {
+    this.props.dispatch({ type: 'main/save', payload: { loading: true } });
     eth.event(id, this.props.signCode, (err, item) => {
+      this.props.dispatch({ type: 'main/save', payload: { loading: false } });
       if (err) {
         message.error(err);
       } else {
         this.setState({
-          loading: false,
           item,
         });
       }
@@ -98,7 +98,7 @@ class IndexPage extends React.Component {
     return (
       <div className={styles.normal}>
         <Header />
-        <Spin size="large" spinning={this.state.loading}>
+        <Spin size="large" spinning={this.props.loading}>
           <div className={styles.content}>
             <ReactMarkdown
               source={infolib.mixPreview(this.state.item)}
@@ -125,8 +125,9 @@ class IndexPage extends React.Component {
               </Row>
             :
               <Row>
-                {(this.props.balance - this.state.item.price) >= web3.toBigNumber('0') ?
+                {this.state.item.buyed ? null : (this.props.balance - this.state.item.price) >= web3.toBigNumber('0') ?
                   <Button
+                    style={{ marginRight: 15 }}
                     onClick={() => {
                       eth.getAccounts((err, accounts) => {
                         eth.rwContract.buyInfo(this.state.item.id, { from: accounts[0] })
@@ -147,23 +148,22 @@ class IndexPage extends React.Component {
                       });
                     }
                   }
-                  >花费 {(this.state.item.price / web3.toBigNumber('1000000000000000000')).toFixed(0)} 个唧唧币 ({cny} 元) 购买付费部分
-                  </Button> :
-                  <Button disabled>您的余额不足，无法购买</Button>}
-                {this.props.signCode ? null :
-                <Button
-                  style={{ marginLeft: 15 }}
-                  onClick={() => {
-                    eth.encryptKey((err, code) => {
-                      if (code) {
-                        this.props.dispatch({ type: 'main/save', payload: { signCode: code } });
-                        this.loadEvent(this.props.match.params.id, code);
-                      }
-                    });
-                  }}
-                >
-                  如果您已经购买过此文章，请点此按钮更新授权
-                </Button>
+                  >花费 {(this.state.item.price / web3.toBigNumber('1000000000000000000')).toFixed(0)} 个唧唧币 ({cny.toFixed(2)} 元) 购买付费部分
+                  </Button> : this.state.item.price ?
+                    <Button disabled>您的余额不足，无法购买</Button> : null}
+                {this.props.signCode ? null : this.state.item.buyed ?
+                  <Button
+                    onClick={() => {
+                      eth.encryptKey((err, code) => {
+                        if (code) {
+                          this.props.dispatch({ type: 'main/save', payload: { signCode: code } });
+                          this.loadEvent(this.props.match.params.id, code);
+                        }
+                      });
+                    }}
+                  >
+                  您已经购买过此文章，请点此按钮查看付费部分
+                </Button> : null
                 }
               </Row>
             }
@@ -189,6 +189,7 @@ export default connect((state) => {
     signCode: state.main.signCode,
     balance: state.main.balance,
     price: state.main.price,
+    loading: state.main.loading,
     priceCNY: state.main.priceCNY,
   };
 })(IndexPage);

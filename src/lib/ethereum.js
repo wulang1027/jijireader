@@ -110,36 +110,43 @@ class MyContract {
       .filter((item) => { return item.name === 'NewInfo'; });
       const item = decodedLogs[0]; // We add NewTag and New Hash, So We should be careful
       const detail = infolib.decode(hash, item);
-      request.get(`https://ipfs.infura.io/ipfs/${detail.hash}`)
-      .end((puberr, pubres) => {
-        detail.public = pubres.text;
-        // 获取内容的动态部分，包括点赞数、踩数、价格和当前地址
-        this.scores({ infos: [detail] }, () => {
-          if (code) { // 如果知道当前的读者是谁，就尝试获得加密内容
-            request.post('/api/decrypt')
-              .send({
-                key: code,
-                msg: [
-                    { id: detail.id },
-                ],
-              })
-              .end((decryptErr, decryptRes) => {
-                if (decryptErr) {
-                  callback(decryptErr);
-                } else if (decryptRes.body.err) {
-                  callback(null, detail);
+      // 检查当前用户是否已经购买过这个文章，即使购买过，仍然需要给解密服务器授权才可以获取其内容
+      this.getAccounts((errAccount, accounts) => {
+        infuraRequest('eth_call',
+          `[{"to":"${this.addr}", "data":"0xa1a63f65${padding(64, accounts[0].substr(2))}${padding(64, detail.id)}"},"latest"]`, (errCall, resCall) => {
+            detail.buyed = resCall.body.result && resCall.body.result.endsWith('1');
+            request.get(`https://ipfs.infura.io/ipfs/${detail.hash}`)
+            .end((puberr, pubres) => {
+              detail.public = pubres.text;
+              // 获取内容的动态部分，包括点赞数、踩数、价格和当前地址
+              this.scores({ infos: [detail] }, () => {
+                if (code) { // 如果知道当前的读者是谁，就尝试获得加密内容
+                  request.post(`${constant.encrypt}/decrypt`)
+                    .send({
+                      key: code,
+                      msg: [
+                          { id: detail.id },
+                      ],
+                    })
+                    .end((decryptErr, decryptRes) => {
+                      if (decryptErr) {
+                        callback(decryptErr);
+                      } else if (decryptRes.body.err) {
+                        callback(null, detail);
+                      } else {
+                        request.get(`https://ipfs.infura.io/ipfs/${decryptRes.body.cnt}`)
+                        .end((privateerr, privateres) => {
+                          detail.private = privateres.text;
+                          callback(null, detail);
+                        });
+                      }
+                    });
                 } else {
-                  request.get(`https://ipfs.infura.io/ipfs/${decryptRes.body.cnt}`)
-                  .end((privateerr, privateres) => {
-                    detail.private = privateres.text;
-                    callback(null, detail);
-                  });
+                  callback(null, detail);
                 }
               });
-          } else {
-            callback(null, detail);
-          }
-        });
+            });
+          });
       });
     });
   }
