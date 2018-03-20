@@ -64,6 +64,10 @@ class IndexPage extends React.Component {
             <Row type="flex" justify="center" align="middle" style={{ marginTop: 20 }}>
               <Button
                 onClick={() => {
+                  if (!eth.web3) {
+                    message.error('您需要先安装 MetaMask 数字货币钱包，建议您阅读 如何开始!');
+                    return;
+                  }
                   eth.getAccounts((err, accounts) => {
                     eth.rwContract.buy(this.state.amount * eth.toBigNumber('1000000000000000000'),
                       { from: accounts[0],

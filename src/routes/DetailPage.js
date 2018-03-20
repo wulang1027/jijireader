@@ -162,7 +162,7 @@ class IndexPage extends React.Component {
                       });
                     }}
                   >
-                  您已经购买过此文章，请点此按钮查看付费部分
+                  请点此按钮查看付费部分
                 </Button> : null
                 }
               </Row>
