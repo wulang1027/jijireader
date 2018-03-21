@@ -4,6 +4,37 @@
   min-height: 400px;
 }
 
+.article p, button, input, select, textarea {
+  font: 300 1em/1.8 PingFang SC, Lantinghei SC, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans;
+}
+
+.article h1, .article h2, .article h3, .article h4, .article h5, .article h6,
+.article-h1, .article-h2, .article-h3, .article-h4, .article-h5, .article-h6 {
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+  line-height: 1.35;
+}
+
+.article h1, .article-h1 {
+  font-size: 2em;
+}
+
+.article h2, .article-h2 {
+  font-size: 1.8em;
+}
+
+.article h3, .article-h3 {
+  font-size: 1.6em;
+}
+
+.article h4, .article-h4 {
+  font-size: 1.4em;
+}
+
+.article h5, .article h6, .article-h5, .article-h6 {
+  font-size: 1.2em;
+}
+
 .article {
   width:90%;
   max-width: 960px;
@@ -12,12 +43,30 @@
   padding-top:2em;
   border:1px solid #ddd;
   border-width:0 1px;
-  font-size: 16px;
   padding: 5% 10%;
+  font: 300 1em/1.8 PingFang SC, Lantinghei SC, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans;
   text-align:justify;
-  font: 300 1em/1.8 PingFang SC, Lantinghei SC, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans-serif;
 }
 
+.article ul, .article-ul {
+  margin-left: 1.3em;
+  list-style: disc;
+}
+
+.article ol, .article-ol {
+  list-style: decimal;
+  margin-left: 0;
+  padding-left: 1.5em;
+}
+
+.article li ul, .article li ol, .article-ul ul, .article-ul ol, .article-ol ul, .article-ol ol {
+  margin-bottom: 0.8em;
+  margin-left: 2em;
+}
+
+.article li ul, .article-ul ul, .article-ol ul {
+  list-style: circle;
+}
 .article pre {
   white-space: pre-wrap;
   background: #f8f8f8;
