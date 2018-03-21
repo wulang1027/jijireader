@@ -156,7 +156,7 @@ class MyContract {
             infuraRequest('eth_call',
               `[{"to":"${this.addr}", "data":"0xa1a63f65${padding(64, accounts[0].substr(2))}${padding(64, this.toBigNumber(detail.id).toString(16))}"},"latest"]`, (errCall, resCall) => {
                 detail.buyed = resCall.body.result && resCall.body.result.endsWith('1'); // eslint-disable-line
-                infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x3421403f${padding(64, accounts[0].substr(2))}${padding(64, this.toBigNumber(detail.id).toString(16))}}"},"latest"]`, (errRank, resRank) => {
+                infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x3421403f${padding(64, accounts[0].substr(2))}${padding(64, this.toBigNumber(detail.id).toString(16))}"},"latest"]`, (errRank, resRank) => {
                   detail.canRank = resRank.body.result && resRank.body.result.endsWith('1'); // eslint-disable-line
                   if (code) { // 如果知道当前的读者是谁，就尝试获得加密内容
                     this.decrypt(code, detail, callback);
