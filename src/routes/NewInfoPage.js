@@ -242,7 +242,9 @@ ${this.state.private}
                     message.error('输入不合法，任何字段都必须要填写，请检查您的输入！');
                     return;
                   }
+                  this.props.dispatch({ type: 'main/save', payload: { loading: true } });
                   this.submitIPFS((err, files) => {
+                    this.props.dispatch({ type: 'main/save', payload: { loading: false } });
                     if (err) {
                       message.error('提交到IPFS时失败！');
                     } else {
