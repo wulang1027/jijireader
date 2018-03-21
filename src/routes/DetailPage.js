@@ -103,7 +103,7 @@ class IndexPage extends React.Component {
             <ReactMarkdown
               source={infolib.mixPreview(this.state.item)}
             />
-            {this.state.item.private ?
+            {this.state.item.private && this.state.item.canRank ?
               <Row type="flex" style={{ marginTop: 50 }} align="middle">
                 <Button
                   type="primary"

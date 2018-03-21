@@ -865,7 +865,7 @@ module.exports = {
     }
   ]
 `),
-  addr: '0x08e18fd23d361822dc0d4b7daea37e1927bfa213',
+  addr: '0x3f2726af0625d68ffe1137e4830b49028d14d167',
   newInfoTopic: '0xa3489e0a20b510c8e265829a84e87b5c61cb7407336e8e2159256f97fe9a35e1',
   encrypt: 'https://api.cryptinfo.pw',
 };
