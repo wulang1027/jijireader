@@ -101,6 +101,8 @@ class IndexPage extends React.Component {
         <Spin size="large" spinning={this.props.loading}>
           <div className={styles.content}>
             <ReactMarkdown
+              className={styles.article}
+              escapeHtml={false}
               source={infolib.mixPreview(this.state.item)}
             />
             {this.state.item.private && this.state.item.canRank ?

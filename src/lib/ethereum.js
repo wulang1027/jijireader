@@ -133,7 +133,7 @@ class MyContract {
 
   event(hash, code, detail, callback) {
     // 如果已经知道code，并且已经取得了一部分内容，只需要取加密部分就好
-    if (code && detail) {
+    if (code && detail && detail.id) {
       this.decrypt(code, detail, callback);
       return;
     }

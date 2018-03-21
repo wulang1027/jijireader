@@ -159,7 +159,11 @@ export default {
 
     rmtx(state, action) {
       state.tx = state.tx.filter((item) => {return item.tx != action.payload.tx}); // eslint-disable-line
-      if (action.payload.callback) action.payload.callback();
+      if (action.payload.callback) {
+        try {
+          action.payload.callback();
+        } finally {} // eslint-disable-line
+      }
       return { ...state };
     },
 

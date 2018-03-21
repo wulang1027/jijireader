@@ -3,3 +3,42 @@
   margin: 20px;
   min-height: 400px;
 }
+
+.article {
+  width:90%;
+  max-width: 960px;
+  background:#fff;
+  margin:3em auto 0;
+  padding-top:2em;
+  border:1px solid #ddd;
+  border-width:0 1px;
+  font-size: 16px;
+  padding: 5% 10%;
+  text-align:justify;
+  font: 300 1em/1.8 PingFang SC, Lantinghei SC, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans-serif;
+}
+
+.article pre {
+  white-space: pre-wrap;
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  padding: 1em 1.5em;
+  display: block;
+  -webkit-overflow-scrolling: touch;
+  text-align:left;
+}
+
+.article pre, code, pre tt {
+  font-family: Courier, 'Courier New', monospace;
+}
+
+.article h1{
+  font-size: 2em;
+}
+
+.article h1, h2, h3, h4, h5, h6 {
+  font-family: PingFang SC, Verdana, Helvetica Neue, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans-serif;
+    font-weight: 100;
+    color: #000;
+    line-height: 1.35;
+}
