@@ -4,12 +4,18 @@ import Spin from 'antd/lib/spin';
 import 'antd/lib/spin/style';
 import message from 'antd/lib/message';
 import 'antd/lib/message/style';
-import { Link } from 'dva/router';
+import { Link, routerRedux } from 'dva/router';
 
 import { connect } from 'dva';
 
 import Button from 'antd/lib/button';
 import 'antd/lib/button/style';
+
+import Icon from 'antd/lib/icon';
+import 'antd/lib/icon/style';
+
+import { Row } from 'antd/lib/grid';
+import 'antd/lib/grid/style';
 
 import styles from './DetailPage.css';
 import Footer from '../components/Footer.js';
@@ -18,6 +24,26 @@ const infolib = require('../lib/info');
 const eth = require('../lib/ethereum');
 
 const ReactMarkdown = require('react-markdown');
+
+const NavIcon = (props) => {
+  if (props.to) {
+    return (
+      <Link to={props.to}>
+        <Icon
+          className={styles.link}
+          style={{ color: props.disabled ? '#cccccccc' : '#0006', fontSize: 20, marginRight: 25 }}
+          {...props}
+        />
+      </Link>
+    );
+  }
+  return (
+    <Icon
+      className={styles.link}
+      style={{ color: props.disabled ? '#cccccccc' : '#0006', fontSize: 20, marginRight: 25 }}
+      {...props}
+    />);
+};
 
 class IndexPage extends React.Component {
   state = {
@@ -94,7 +120,8 @@ class IndexPage extends React.Component {
     }
     const cmd = props.href.substr(6);
     if (cmd === 'signcode') {
-      return (<Button
+      return (<span
+        className={styles.link}
         onClick={() => {
           eth.encryptKey((err, code) => {
             if (code) {
@@ -105,11 +132,12 @@ class IndexPage extends React.Component {
         }}
       >
         { props.children }
-      </Button>);
+      </span>);
     } else if (cmd === 'buyji') {
       return <Link to={{ pathname: '/buy' }}>{props.children}</Link>;
     } else if (cmd === 'buy') {
-      return (<Button
+      return (<span
+        className={styles.link}
         style={{ marginRight: 15 }}
         onClick={() => {
           eth.getAccounts((err, accounts) => {
@@ -132,7 +160,7 @@ class IndexPage extends React.Component {
         }
       }
       >{props.children}
-      </Button>);
+      </span>);
     } else if (cmd === 'howtobuy') {
       return <Link to={{ pathname: '/detail/e3b356ab67be8453e465fc904d3eefb22d0983420d08be3c9bc40ba4d0aa68ca' }}>{props.children}</Link>;
     } else if (cmd === 'rank') {
@@ -168,7 +196,7 @@ class IndexPage extends React.Component {
     const cny = ((this.props.priceCNY * price) * this.state.item.price) /
     eth.toBigNumber('1000000000000000000');
 
-    const priceMemo = ` （${(this.state.item.price / eth.toBigNumber('1000000000000000000')).toFixed(0)} Ji ，¥ ${cny.toFixed(2)})`;
+    const priceMemo = ` **（${(this.state.item.price / eth.toBigNumber('1000000000000000000')).toFixed(0)}Ji ，${cny.toFixed(2)}¥)**`;
     let extra = '';
     if (!eth.web3) {
       extra = '[怎么购买](__JI__howtobuy)';
@@ -184,11 +212,6 @@ class IndexPage extends React.Component {
       artile.public += (this.state.item.price ? priceMemo : '') + (extra ? `，${extra}` : '');
     }
 
-    if (this.props.signCode && this.state.item.private && this.state.item.canRank) {
-      artile.private += `\n\n[评价此文章获得 ${this.props.reward ?
-        this.props.reward / eth.toBigNumber('1000000000000000000').toFixed(4) : 0} Ji的奖励](__JI__rank)`;
-    }
-
     return (
       <div className={styles.normal}>
         <Spin size="large" spinning={this.props.loading}>
@@ -198,6 +221,44 @@ class IndexPage extends React.Component {
               source={infolib.mixPreview(artile)}
               renderers={infolib.mdrender()}
             />
+            <Row type="flex" justify="center" style={{ marginTop: 40 }} >
+              <NavIcon
+                onClick={this.like.bind(this)}
+                disabled={!this.props.signCode ||
+                          !this.state.item.private ||
+                          !this.state.item.canRank}
+                type="like-o"
+              />
+              <NavIcon
+                onClick={this.dislike.bind(this)}
+                disabled={!this.props.signCode ||
+                  !this.state.item.private ||
+                  !this.state.item.canRank}
+                type="dislike-o"
+              />
+              <div style={{ width: 20 }} />
+              <NavIcon
+                to={`/author/${this.state.item.owner}`}
+                type="contacts"
+              />
+              <NavIcon
+                to={`/tags/${this.state.item.tagid}`}
+                type="tags-o"
+              />
+              <NavIcon
+                to={`/lbs/${this.state.item.geoid}`}
+                type="environment"
+              />
+              <div style={{ width: 20 }} />
+              <NavIcon
+                to="/"
+                type="profile"
+              />
+              <NavIcon
+                to="/newinfo"
+                type="form"
+              />
+            </Row>
           </div>
         </Spin>
         <Footer />
@@ -205,14 +266,6 @@ class IndexPage extends React.Component {
     );
   }
 }
-
-/**
-  <Row style={{ marginTop: 20 }} type="flex">
-    <Link to={{ pathname: `/author/${this.state.item.owner}` }}>作者的其它文字</Link>
-    <Link style={{ marginLeft: 15 }} to={{ pathname: `/tags/${this.state.item.tagid}` }}>同类文字</Link>
-    <Link style={{ marginLeft: 15 }} to={{ pathname: `/lbs/${this.state.item.geoid}` }}>附近文字</Link>
-  </Row>
- */
 
 IndexPage.propTypes = {
 };

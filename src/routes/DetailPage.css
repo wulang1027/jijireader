@@ -15,6 +15,11 @@
   line-height: 1.35;
 }
 
+.link {
+  color: #1890ff;
+  cursor: pointer;
+}
+
 .article h1, .article-h1 {
   font-size: 2em;
 }
