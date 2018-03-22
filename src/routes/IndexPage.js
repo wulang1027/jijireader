@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'dva';
 
-import { Row, Col } from 'antd/lib/grid';
+import { Row } from 'antd/lib/grid';
 import 'antd/lib/grid/style';
 
 import Pagination from 'antd/lib/pagination';
@@ -20,15 +20,13 @@ class IndexPage extends React.Component {
 
   render() {
     return (
-      <Row className={styles.normal} type="flex">
-        <Col type="flex" style={{ display: 'flex', flex: 1, flexDirection: 'column', alignItems: 'stretch' }}>
-          <Header />
-          <Contents />
-          <Row type="flex" justify="center" style={{ paddingRight: 30 }}>
-            <Pagination pageSize={10} total={this.props.total || 0} />
-          </Row>
-          <Footer />
-        </Col>
+      <Row type="flex" className={styles.normal} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+        <Header />
+        <Contents />
+        <Row type="flex" justify="center" style={{ paddingRight: 30 }}>
+          <Pagination pageSize={10} total={this.props.total || 0} />
+        </Row>
+        <Footer />
       </Row>
     );
   }

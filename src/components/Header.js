@@ -4,19 +4,11 @@ import { connect } from 'dva';
 import { Row, Col } from 'antd/lib/grid';
 import 'antd/lib/grid/style';
 
-import Icon from 'antd/lib/icon';
-import 'antd/lib/icon/style';
-
 import Badge from 'antd/lib/badge';
 import 'antd/lib/badge/style';
 
-import Dropdown from 'antd/lib/dropdown';
-import 'antd/lib/dropdown/style';
-
-import Menu from 'antd/lib/menu';
-import 'antd/lib/menu/style';
-
 const eth = require('../lib/ethereum');
+const NavIcon = require('../components/navicon');
 
 class Example extends React.Component {
   componentDidMount() {
@@ -32,61 +24,36 @@ class Example extends React.Component {
     }, 5000);
   }
   render() {
-    const menu = (
-      <Menu>
-        <Menu.Item key="0">
-          <Link to={{ pathname: '/buy' }}>购买 Ji 币</Link>
-        </Menu.Item>
-        <Menu.Item key="1">
-          <Link to={{ pathname: '/sell' }}>出售 Ji 币</Link>
-        </Menu.Item>
-        <Menu.Divider />
-      </Menu>
-    );
-    const tags = (this.props.tags || []).map((item, idx) => {
-      return (<Menu.Item key={idx}>
-        <Link to={{ pathname: `/tags/${item.id}` }}>{item.tag}</Link>
-      </Menu.Item>);
-    });
-    const tagMenu = (
-      <Menu>
-        {tags}
-      </Menu>
-    );
     const balance = this.props.balance ? (eth.toBigNumber(this.props.balance) / eth.toBigNumber(1000000000000000000)).toFixed(3).toString() : '0';
     return (
-      <Row style={{ padding: '20px 0' }} align="middle" type="flex">
+      <Row style={{ backgroundColor: 'black', height: 26 }} align="middle" type="flex">
         <Col type="flex" style={{ marginLeft: 30 }}>
-          <Link to={{ pathname: '/' }}>首页</Link>
+          <NavIcon to="/" type="home" style={{ color: '#cccc' }} />
         </Col>
         <Col type="flex" style={{ marginLeft: 30 }}>
-          <Link to={{ pathname: '/hot' }}>热门文章</Link>
+          <NavIcon to="/hot" type="rocket" style={{ color: '#cccc' }} />
         </Col>
         <Col type="flex" style={{ marginLeft: 30 }}>
-          <Link to={{ pathname: '/map' }}>文字地图</Link>
+          <NavIcon to="/map" type="environment-o" style={{ color: '#cccc' }} />
         </Col>
         <Col type="flex" style={{ marginLeft: 30 }}>
-          <Link to={{ pathname: '/random' }}>I feel Lucky</Link>
+          <NavIcon to="/random" type="gift" style={{ color: '#cccc' }} />
         </Col>
         <Col type="flex" style={{ marginLeft: 30 }}>
-          <Row type="flex" justify="center" align="middle">
-            <Dropdown overlay={tagMenu}>
-              <div>所有标签 <Icon type="down" /></div>
-            </Dropdown>
-          </Row>
+          <NavIcon to="/tags" type="tags-o" style={{ color: '#cccc' }} />
         </Col>
         <Col type="flex" style={{ marginLeft: 30, flex: 1 }} />
-        <Row type="flex" justify="end">
-          <Dropdown overlay={menu}>
-            <div>账户余额: {balance} 唧唧币 <Icon type="down" /></div>
-          </Dropdown>
-          <Link style={{ marginLeft: 20 }} to={{ pathname: '/buyed' }}>我购买的内容</Link>
-          <Link style={{ margin: '0 20px' }} to={{ pathname: '/newinfo' }}>发布新内容</Link>
-          <div style={{ marginRight: 20 }}>
+        <Row type="flex" justify="end" align="middle">
+          <Col type="flex" style={{ marginRight: 30, fontSize: 12, color: '#cccc' }}>
+            <Link to={{ pathname: '/buy' }}>{balance} JI</Link>
+          </Col>
+          <NavIcon to="/buyed" type="shopping-cart" style={{ color: '#cccc' }} />
+          <NavIcon to="/newinfo" type="form" style={{ color: '#cccc', margin: '0 30px' }} />
+          {this.props.tx.length ?
             <Badge count={this.props.tx.length}>
-              <Icon type="coffee" />
+              <span style={{ color: '#cccc', fontSize: 16, marginLeft: 30 }} >{this.props.tx.length}</span>
             </Badge>
-          </div>
+          : null}
         </Row>
       </Row>
     );
@@ -103,3 +70,18 @@ export default connect((state) => {
     tags: state.main.tags,
   };
 })(Example);
+
+/**
+          <Dropdown overlay={menu}>
+            <div>账户余额: {balance} 唧唧币 <Icon type="down" /></div>
+          </Dropdown>
+
+  <Col type="flex" style={{ marginLeft: 30, backgroundColor: 'white' }}>
+    <Row type="flex" justify="center" align="middle">
+      <Dropdown overlay={tagMenu}>
+        <div>所有标签 <Icon type="down" /></div>
+      </Dropdown>
+    </Row>
+  </Col>
+
+ */

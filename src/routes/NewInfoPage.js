@@ -129,11 +129,11 @@ ${this.state.private}
       eth.toBigNumber('1000000000000000000')).toFixed(5) : 0;
     const cny = this.props.priceCNY * price * this.state.price;
     return (
-      <div className={styles.normal} >
+      <Row type="flex" className={styles.normal} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
         <Header />
         <Spin size="large" spinning={this.props.loading}>
-          <Row style={{ margin: 20 }}>
-            <Col span={12} style={{ padding: 10, borderRight: 'dashed 1px black' }} >
+          <Row>
+            <Col span={12} style={{ padding: 10, fontSize: 14, backgroundColor: '#eee', borderRight: 'dashed 1px black' }} >
               <FormRow>
                 <Col span={6}> <Row type="flex" align="middle" justify="end" className={styles.label}>标题：</Row> </Col>
                 <Col span={18}> <Row type="flex" align="middle" justify="start" className={styles.input}>
@@ -267,7 +267,7 @@ ${this.state.private}
           </Row>
         </Spin>
         <Footer />
-      </div>
+      </Row>
     );
   }
 }

@@ -22,15 +22,15 @@ const Example = (props) => {
   })
   .map((item, idx) => {
     return (
-      <Col key={idx} span={12}>
-        <Row type="flex" style={{ padding: '15px 0' }}>
-          <Col style={{ flex: 1, padding: '0 15px' }}>
-            <Link
-              to={{ pathname: `/detail/${item.transaction.substr(2)}` }}
-            >
-              <div className={styles.title}>{item.title}</div>
-            </Link>
-          </Col>
+      <Col key={idx} style={{ width: 400 }}>
+        <Row type="flex" style={{ padding: '15px 0 5px 0' }}>
+          <Link
+            to={{ pathname: `/detail/${item.transaction.substr(2)}` }}
+          >
+            <div className={styles.title}>{item.title}</div>
+          </Link>
+        </Row>
+        <Row type="flex" style={{ fontSize: 12 }}>
           <Col>
             <Link to={{ pathname: `/tags/${item.tagid}` }}>{item.tag}</Link>
           </Col>
@@ -58,12 +58,12 @@ const Example = (props) => {
       </Col>);
   });
   return (
-    <Spin size="large" spinning={props.loading}>
-      <div style={{ minHeight: 400, padding: 20 }}>
-        <Row style={{ flex: 1, padding: 20 }}>
+    <Spin size="large" spinning={props.loading} wrapperClassName={styles.spin}>
+      <Row type="flex" justify="center" style={{ minHeight: 400, padding: 20 }}>
+        <Row type="flex" style={{ padding: 20 }}>
           {cols}
         </Row>
-      </div>
+      </Row>
     </Spin>
   );
 };

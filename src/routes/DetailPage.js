@@ -11,9 +11,6 @@ import { connect } from 'dva';
 import Button from 'antd/lib/button';
 import 'antd/lib/button/style';
 
-import Icon from 'antd/lib/icon';
-import 'antd/lib/icon/style';
-
 import { Row } from 'antd/lib/grid';
 import 'antd/lib/grid/style';
 
@@ -24,26 +21,8 @@ const infolib = require('../lib/info');
 const eth = require('../lib/ethereum');
 
 const ReactMarkdown = require('react-markdown');
-
-const NavIcon = (props) => {
-  if (props.to && !props.disabled) {
-    return (
-      <Link to={props.to}>
-        <Icon
-          className={styles.link}
-          style={{ color: props.disabled ? '#cccccccc' : '#0006', fontSize: 20, marginRight: 25 }}
-          {...props}
-        />
-      </Link>
-    );
-  }
-  return (
-    <Icon
-      className={styles.link}
-      style={{ color: props.disabled ? '#cccccccc' : '#0006', fontSize: 20, marginRight: 25 }}
-      {...props}
-    />);
-};
+const NavIcon = require('../components/navicon');
+const Header = require('../components/Header');
 
 class IndexPage extends React.Component {
   state = {
@@ -56,12 +35,23 @@ class IndexPage extends React.Component {
     },
   }
 
+  componentWillMount() {
+    this.unlisten = this.props.history.listen((location) => {
+      if (location.pathname.startsWith('/detail/')) {
+        this.loadEvent(location.pathname.substr(8), this.props.signCode);
+      }
+    });
+  }
+
   componentDidMount() {
     const markdownCallback = {
       link: this.renderArticleLink.bind(this),
     };
     infolib.bindRender(markdownCallback);
-    this.loadEvent(this.props.match.params.id, this.props.signCode);
+  }
+
+  componentWillUnmount() {
+    this.unlisten();
   }
 
   loadEvent(id) {
@@ -214,6 +204,7 @@ class IndexPage extends React.Component {
 
     return (
       <div className={styles.normal}>
+        <Header />
         <Spin size="large" spinning={this.props.loading}>
           <div className={styles.content}>
             <ReactMarkdown

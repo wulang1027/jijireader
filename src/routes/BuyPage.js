@@ -14,7 +14,7 @@ import 'antd/lib/input-number/style';
 
 import { connect } from 'dva';
 
-import styles from './DetailPage.css';
+import styles from './IndexPage.css';
 import Header from '../components/Header.js';
 import Footer from '../components/Footer.js';
 
@@ -29,9 +29,9 @@ class IndexPage extends React.Component {
     eth.toBigNumber('1000000000000000000')).toFixed(5) : 0;
     const cny = this.props.priceCNY * price * this.state.amount;
     return (
-      <div className={styles.normal}>
+      <Row type="flex" className={styles.normal} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
         <Header />
-        <Row type="flex" justify="center" align="middle" style={{ minHeight: 400, padding: 30 }}>
+        <Row type="flex" justify="center" align="middle" style={{ flex: 1, minHeight: 400, padding: 30 }}>
           <Col>
             <Row type="flex" justify="center" align="middle">
               <h1>你想购买多少？</h1>
@@ -96,7 +96,7 @@ class IndexPage extends React.Component {
           </Col>
         </Row>
         <Footer />
-      </div>
+      </Row>
     );
   }
 }
