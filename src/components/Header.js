@@ -51,7 +51,7 @@ class Example extends React.Component {
           <NavIcon to="/newinfo" type="form" style={{ color: '#cccc', margin: '0 30px' }} />
           {this.props.tx.length ?
             <Badge count={this.props.tx.length}>
-              <span style={{ color: '#cccc', fontSize: 16, marginLeft: 30 }} >{this.props.tx.length}</span>
+              <span style={{ color: '#cccc', fontSize: 16, marginRight: 30 }} >{this.props.tx.length}</span>
             </Badge>
           : null}
         </Row>
