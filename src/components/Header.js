@@ -50,9 +50,11 @@ class Example extends React.Component {
           <NavIcon to="/buyed" title="已购买的内容" type="shopping-cart" style={{ color: '#cccc' }} />
           <NavIcon to="/newinfo" title="发表新内容" type="form" style={{ color: '#cccc', margin: '0 30px' }} />
           {this.props.tx.length ?
-            <Badge count={this.props.tx.length}>
-              <span style={{ color: '#cccc', fontSize: 16, marginRight: 30 }} >{this.props.tx.length}</span>
-            </Badge>
+            <span style={{ marginRight: 30 }}>
+              <Badge count={this.props.tx.length}>
+                <span style={{ color: '#cccc', fontSize: 16 }} >{this.props.tx.length}</span>
+              </Badge>
+            </span>
           : null}
         </Row>
       </Row>
