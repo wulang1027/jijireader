@@ -27,6 +27,7 @@ import Select from 'antd/lib/select';
 import 'antd/lib/select/style';
 
 import styles from './NewInfoPage.css';
+import detailcss from './DetailPage.css';
 
 import Header from '../components/Header.js';
 import Footer from '../components/Footer.js';
@@ -257,7 +258,11 @@ ${this.state.private}
               </FormRow>
             </Col>
             <Col span={12} style={{ padding: 10 }}>
-              <ReactMarkdown escapeHtml={false} source={infolib.mixPreview(info)} />
+              <ReactMarkdown
+                className={detailcss.article}
+                source={infolib.mixPreview(info)}
+                renderers={infolib.mdrender()}
+              />
             </Col>
           </Row>
         </Spin>

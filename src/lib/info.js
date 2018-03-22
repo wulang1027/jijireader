@@ -1,3 +1,5 @@
+import React from 'react';
+
 export function mixPreview(item) {
   return `
 # ${item.title || '这是您的文章预览'}
@@ -22,4 +24,18 @@ export function decode(txhash, item) {
     tag: item.events[6].value,
     geohash: item.events[7].value,
   };
+}
+
+function MarkDownImage(props) {
+  return (<img alt={props.alt} src={props.src} style={{ width: '100%' }} />);
+}
+
+let renders = { image: MarkDownImage };
+
+export function bindRender(render) {
+  renders = { ...render, ...renders };
+}
+
+export function mdrender() {
+  return renders;
 }

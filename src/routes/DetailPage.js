@@ -11,11 +11,7 @@ import { connect } from 'dva';
 import Button from 'antd/lib/button';
 import 'antd/lib/button/style';
 
-import { Row } from 'antd/lib/grid';
-import 'antd/lib/grid/style';
-
 import styles from './DetailPage.css';
-import Header from '../components/Header.js';
 import Footer from '../components/Footer.js';
 
 const infolib = require('../lib/info');
@@ -35,6 +31,10 @@ class IndexPage extends React.Component {
   }
 
   componentDidMount() {
+    const markdownCallback = {
+      link: this.renderArticleLink.bind(this),
+    };
+    infolib.bindRender(markdownCallback);
     this.loadEvent(this.props.match.params.id, this.props.signCode);
   }
 
@@ -88,92 +88,116 @@ class IndexPage extends React.Component {
     });
   }
 
+  renderArticleLink(props) {
+    if (!props.href.startsWith('__JI__')) {
+      return <a href={props.href}>{props.children}</a>;
+    }
+    const cmd = props.href.substr(6);
+    if (cmd === 'signcode') {
+      return (<Button
+        onClick={() => {
+          eth.encryptKey((err, code) => {
+            if (code) {
+              this.props.dispatch({ type: 'main/save', payload: { signCode: code } });
+              this.loadEvent(this.props.match.params.id, code);
+            }
+          });
+        }}
+      >
+        { props.children }
+      </Button>);
+    } else if (cmd === 'buyji') {
+      return <Link to={{ pathname: '/buy' }}>{props.children}</Link>;
+    } else if (cmd === 'buy') {
+      return (<Button
+        style={{ marginRight: 15 }}
+        onClick={() => {
+          eth.getAccounts((err, accounts) => {
+            eth.rwContract.buyInfo(this.state.item.id, { from: accounts[0] })
+            .then((tx) => {
+              this.props.dispatch({
+                type: 'main/addtx',
+                payload: {
+                  tx,
+                  callback: () => {
+                    this.loadEvent(this.props.match.params.id, this.props.signCode);
+                  },
+                } });
+              message.success('文章已购买，但队列确认还需要时间');
+            })
+            .catch((err2) => {
+              message.error('用户取消或者发送失败！', err2);
+            });
+          });
+        }
+      }
+      >{props.children}
+      </Button>);
+    } else if (cmd === 'howtobuy') {
+      return <Link to={{ pathname: '/detail/e3b356ab67be8453e465fc904d3eefb22d0983420d08be3c9bc40ba4d0aa68ca' }}>{props.children}</Link>;
+    } else if (cmd === 'rank') {
+      return (<span style={{ marginTop: 50 }}>
+        <Button
+          type="primary"
+          shape="circle"
+          icon="like"
+          style={{ marginRight: 10 }}
+          onClick={this.like.bind(this)}
+        />
+        <Button
+          type="primary"
+          shape="circle"
+          icon="dislike"
+          style={{ marginRight: 10 }}
+          onClick={this.dislike.bind(this)}
+        />{props.children}
+      </span>);
+    }
+    return <a href={props.href}>{props.children}</a>;
+  }
+
+  /* global document */
   render() {
+    if (this.state.item.title) {
+      document.title = `${this.state.item.title} --- 潘多拉文字社区`;
+    }
+
     const price = this.props.price ?
     (eth.toBigNumber(this.props.price) /
     eth.toBigNumber('1000000000000000000')).toFixed(5) : 0;
     const cny = ((this.props.priceCNY * price) * this.state.item.price) /
     eth.toBigNumber('1000000000000000000');
-    const youhavenowallet = `花费 ${cny.toFixed(2)} 元人民币就可以看到付费内容，但您貌似还没有安装 MetaMask 数字货币钱包`;
+
+    const priceMemo = ` （${(this.state.item.price / eth.toBigNumber('1000000000000000000')).toFixed(0)} Ji ，¥ ${cny.toFixed(2)})`;
+    let extra = '';
+    if (!eth.web3) {
+      extra = '[怎么购买](__JI__howtobuy)';
+    } else if (!this.state.item.buyed && (this.props.balance - this.state.item.price) >= eth.toBigNumber('0')) {
+      extra = '[购买付费部分](__JI__buy)';
+    } else if (!this.state.item.buyed && (this.props.balance - this.state.item.price) < eth.toBigNumber('0')) {
+      extra = '您的余额不足，[马上购买](__JI__buyji)';
+    } else if (!this.props.signCode && this.state.item.buyed) {
+      extra = '您已购买此文章，[点这里授权显示相关内容](__JI__signcode)';
+    }
+    const artile = { ...this.state.item };
+    if (this.state.item.price) {
+      artile.public += (this.state.item.price ? priceMemo : '') + (extra ? `，${extra}` : '');
+    }
+
+    if (this.props.signCode && this.state.item.private && this.state.item.canRank) {
+      artile.private += `\n\n[评价此文章获得 ${this.props.reward ?
+        this.props.reward / eth.toBigNumber('1000000000000000000').toFixed(4) : 0} Ji的奖励](__JI__rank)`;
+    }
+
     return (
       <div className={styles.normal}>
-        <Header />
         <Spin size="large" spinning={this.props.loading}>
           <div className={styles.content}>
             <ReactMarkdown
               className={styles.article}
-              escapeHtml={false}
-              source={infolib.mixPreview(this.state.item)}
+              source={infolib.mixPreview(artile)}
+              renderers={infolib.mdrender()}
             />
-            {this.state.item.private && this.state.item.canRank ?
-              <Row type="flex" style={{ marginTop: 50 }} align="middle">
-                <Button
-                  type="primary"
-                  shape="circle"
-                  icon="like"
-                  style={{ marginRight: 10 }}
-                  onClick={this.like.bind(this)}
-                />
-                <Button
-                  type="primary"
-                  shape="circle"
-                  icon="dislike"
-                  style={{ marginRight: 10 }}
-                  onClick={this.dislike.bind(this)}
-                />
-                <span>评价文章您将获得 {this.props.reward ?
-                  this.props.reward / eth.toBigNumber('1000000000000000000').toFixed(4) : 0
-              } 唧唧币的奖励 </span>
-              </Row>
-            :
-              <Row>
-                {this.state.item.buyed ? null : (this.props.balance - this.state.item.price) >= eth.toBigNumber('0') ?
-                  <Button
-                    style={{ marginRight: 15 }}
-                    onClick={() => {
-                      eth.getAccounts((err, accounts) => {
-                        eth.rwContract.buyInfo(this.state.item.id, { from: accounts[0] })
-                        .then((tx) => {
-                          this.props.dispatch({
-                            type: 'main/addtx',
-                            payload: {
-                              tx,
-                              callback: () => {
-                                this.loadEvent(this.props.match.params.id, this.props.signCode);
-                              },
-                            } });
-                          message.success('文章已购买，但队列确认还需要时间');
-                        })
-                        .catch((err2) => {
-                          message.error('用户取消或者发送失败！', err2);
-                        });
-                      });
-                    }
-                  }
-                  >花费 {(this.state.item.price / eth.toBigNumber('1000000000000000000')).toFixed(0)} 个唧唧币 ({cny.toFixed(2)} 元) 购买付费部分
-                  </Button> : this.state.item.price ? eth.web3 ?
-                    <Button disabled>您的余额不足，无法购买</Button> : <span>{youhavenowallet}</span> : null}
-                {this.props.signCode ? null : this.state.item.buyed ?
-                  <Button
-                    onClick={() => {
-                      eth.encryptKey((err, code) => {
-                        if (code) {
-                          this.props.dispatch({ type: 'main/save', payload: { signCode: code } });
-                          this.loadEvent(this.props.match.params.id, code);
-                        }
-                      });
-                    }}
-                  >
-                  请点此按钮查看付费部分
-                </Button> : null
-                }
-              </Row>
-            }
-            <Row style={{ marginTop: 20 }} type="flex">
-              <Link to={{ pathname: `/author/${this.state.item.owner}` }}>作者的其它文字</Link>
-              <Link style={{ marginLeft: 15 }} to={{ pathname: `/tags/${this.state.item.tagid}` }}>同类文字</Link>
-              <Link style={{ marginLeft: 15 }} to={{ pathname: `/lbs/${this.state.item.geoid}` }}>附近文字</Link>
-            </Row>
           </div>
         </Spin>
         <Footer />
@@ -181,6 +205,14 @@ class IndexPage extends React.Component {
     );
   }
 }
+
+/**
+  <Row style={{ marginTop: 20 }} type="flex">
+    <Link to={{ pathname: `/author/${this.state.item.owner}` }}>作者的其它文字</Link>
+    <Link style={{ marginLeft: 15 }} to={{ pathname: `/tags/${this.state.item.tagid}` }}>同类文字</Link>
+    <Link style={{ marginLeft: 15 }} to={{ pathname: `/lbs/${this.state.item.geoid}` }}>附近文字</Link>
+  </Row>
+ */
 
 IndexPage.propTypes = {
 };
