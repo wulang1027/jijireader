@@ -15,6 +15,10 @@
   line-height: 1.35;
 }
 
+.article p, .article pre, .article ul, .article ol, .article dl, .article form, .article hr, .article table, .article-p, .article-pre, .article-ul, .article-ol, .article-dl, .article-form, .article-hr, .article-table, blockquote {
+  margin-bottom: 1.2em;
+}
+
 .link {
   color: #1890ff;
   cursor: pointer;
