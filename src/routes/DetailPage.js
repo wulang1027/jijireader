@@ -4,7 +4,7 @@ import Spin from 'antd/lib/spin';
 import 'antd/lib/spin/style';
 import message from 'antd/lib/message';
 import 'antd/lib/message/style';
-import { Link, routerRedux } from 'dva/router';
+import { Link } from 'dva/router';
 
 import { connect } from 'dva';
 
@@ -26,7 +26,7 @@ const eth = require('../lib/ethereum');
 const ReactMarkdown = require('react-markdown');
 
 const NavIcon = (props) => {
-  if (props.to) {
+  if (props.to && !props.disabled) {
     return (
       <Link to={props.to}>
         <Icon
@@ -223,18 +223,12 @@ class IndexPage extends React.Component {
             />
             <Row type="flex" justify="center" style={{ marginTop: 40 }} >
               <NavIcon
-                onClick={this.like.bind(this)}
-                disabled={!this.props.signCode ||
-                          !this.state.item.private ||
-                          !this.state.item.canRank}
-                type="like-o"
+                to="/"
+                type="home"
               />
               <NavIcon
-                onClick={this.dislike.bind(this)}
-                disabled={!this.props.signCode ||
-                  !this.state.item.private ||
-                  !this.state.item.canRank}
-                type="dislike-o"
+                to="/newinfo"
+                type="form"
               />
               <div style={{ width: 20 }} />
               <NavIcon
@@ -251,12 +245,18 @@ class IndexPage extends React.Component {
               />
               <div style={{ width: 20 }} />
               <NavIcon
-                to="/"
-                type="profile"
+                onClick={this.like.bind(this)}
+                disabled={!this.props.signCode ||
+                          !this.state.item.private ||
+                          !this.state.item.canRank}
+                type="like-o"
               />
               <NavIcon
-                to="/newinfo"
-                type="form"
+                onClick={this.dislike.bind(this)}
+                disabled={!this.props.signCode ||
+                  !this.state.item.private ||
+                  !this.state.item.canRank}
+                type="dislike-o"
               />
             </Row>
           </div>
