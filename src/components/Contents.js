@@ -22,7 +22,7 @@ const Example = (props) => {
   })
   .map((item, idx) => {
     return (
-      <Col key={idx} style={{ width: 400 }}>
+      <Col key={idx} style={{ width: 400, padding: '0 20px' }}>
         <Row type="flex" style={{ padding: '15px 0 5px 0' }}>
           <Link
             to={{ pathname: `/detail/${item.transaction.substr(2)}` }}
@@ -59,8 +59,8 @@ const Example = (props) => {
   });
   return (
     <Spin size="large" spinning={props.loading} wrapperClassName={styles.spin}>
-      <Row type="flex" justify="center" style={{ minHeight: 400, padding: 20 }}>
-        <Row type="flex" style={{ padding: 20 }}>
+      <Row type="flex" justify="center" style={{ padding: 20 }}>
+        <Row type="flex" justify="center" style={{ padding: '0 20px' }}>
           {cols}
         </Row>
       </Row>

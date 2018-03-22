@@ -216,23 +216,28 @@ class IndexPage extends React.Component {
             <Row type="flex" justify="center" style={{ marginTop: 40 }} >
               <NavIcon
                 to="/"
+                title="主页"
                 type="home"
               />
               <NavIcon
                 to="/newinfo"
+                title="发表新内容"
                 type="form"
               />
               <div style={{ width: 20 }} />
               <NavIcon
                 to={`/author/${this.state.item.owner}`}
+                title="作者的其他内容"
                 type="contacts"
               />
               <NavIcon
                 to={`/tags/${this.state.item.tagid}`}
+                title="同标签内容"
                 type="tags-o"
               />
               <NavIcon
                 to={`/lbs/${this.state.item.geoid}`}
+                title="附近的内容"
                 type="environment"
               />
               <div style={{ width: 20 }} />

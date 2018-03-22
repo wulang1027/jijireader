@@ -28,27 +28,27 @@ class Example extends React.Component {
     return (
       <Row style={{ backgroundColor: 'black', height: 26 }} align="middle" type="flex">
         <Col type="flex" style={{ marginLeft: 30 }}>
-          <NavIcon to="/" type="home" style={{ color: '#cccc' }} />
+          <NavIcon to="/" type="home" title="主页" style={{ color: '#cccc' }} />
         </Col>
         <Col type="flex" style={{ marginLeft: 30 }}>
-          <NavIcon to="/hot" type="rocket" style={{ color: '#cccc' }} />
+          <NavIcon to="/hot" type="rocket" title="热门文章" style={{ color: '#cccc' }} />
         </Col>
         <Col type="flex" style={{ marginLeft: 30 }}>
-          <NavIcon to="/map" type="environment-o" style={{ color: '#cccc' }} />
+          <NavIcon to="/map" type="environment-o" title="文字地图" style={{ color: '#cccc' }} />
         </Col>
         <Col type="flex" style={{ marginLeft: 30 }}>
-          <NavIcon to="/random" type="gift" style={{ color: '#cccc' }} />
+          <NavIcon to="/random" type="gift" title="试试运气" style={{ color: '#cccc' }} />
         </Col>
         <Col type="flex" style={{ marginLeft: 30 }}>
-          <NavIcon to="/tags" type="tags-o" style={{ color: '#cccc' }} />
+          <NavIcon to="/tags" type="tags-o" title="所有标签" style={{ color: '#cccc' }} />
         </Col>
         <Col type="flex" style={{ marginLeft: 30, flex: 1 }} />
         <Row type="flex" justify="end" align="middle">
           <Col type="flex" style={{ marginRight: 30, fontSize: 12, color: '#cccc' }}>
-            <Link to={{ pathname: '/buy' }}>{balance} JI</Link>
+            <Link to={{ pathname: '/buy' }} title="购买 Ji 币" >{balance} JI</Link>
           </Col>
-          <NavIcon to="/buyed" type="shopping-cart" style={{ color: '#cccc' }} />
-          <NavIcon to="/newinfo" type="form" style={{ color: '#cccc', margin: '0 30px' }} />
+          <NavIcon to="/buyed" title="已购买的内容" type="shopping-cart" style={{ color: '#cccc' }} />
+          <NavIcon to="/newinfo" title="发表新内容" type="form" style={{ color: '#cccc', margin: '0 30px' }} />
           {this.props.tx.length ?
             <Badge count={this.props.tx.length}>
               <span style={{ color: '#cccc', fontSize: 16, marginRight: 30 }} >{this.props.tx.length}</span>
