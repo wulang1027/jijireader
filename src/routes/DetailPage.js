@@ -54,9 +54,9 @@ class IndexPage extends React.Component {
     this.unlisten();
   }
 
-  loadEvent(id) {
+  loadEvent(id, code, seed) {
     this.props.dispatch({ type: 'main/save', payload: { loading: true } });
-    eth.event(id, this.props.signCode, this.state.item, (err, item) => {
+    eth.event(id, code || this.props.signCode, seed, this.state.item, (err, item) => {
       this.props.dispatch({ type: 'main/save', payload: { loading: false } });
       if (err) {
         message.error(err);
@@ -113,10 +113,10 @@ class IndexPage extends React.Component {
       return (<span
         className={styles.link}
         onClick={() => {
-          eth.encryptKey((err, code) => {
+          eth.encryptKey((err, code, seed) => {
             if (code) {
-              this.props.dispatch({ type: 'main/save', payload: { signCode: code } });
-              this.loadEvent(this.props.match.params.id, code);
+              this.props.dispatch({ type: 'main/save', payload: { signCode: code, seed } });
+              this.loadEvent(this.props.match.params.id, code, seed);
             }
           });
         }}
@@ -138,7 +138,8 @@ class IndexPage extends React.Component {
                 payload: {
                   tx,
                   callback: () => {
-                    this.loadEvent(this.props.match.params.id, this.props.signCode);
+                    this.loadEvent(this.props.match.params.id,
+                      this.props.signCode, this.props.seed);
                   },
                 } });
               message.success('文章已购买，但队列确认还需要时间');
@@ -265,6 +266,7 @@ export default connect((state) => {
   return {
     reward: state.main.reward,
     signCode: state.main.signCode,
+    seed: state.main.signCode,
     balance: state.main.balance,
     price: state.main.price,
     loading: state.main.loading,

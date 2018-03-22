@@ -81,19 +81,20 @@ class MyContract {
   }
 
   encryptKey(callback) {
+    const now = Date.now() / 1000 | 0;
     const msgParams = [
       {
-        type: 'string',      // Any valid solidity type
-        name: 'decrypt',     // Any string label you want
-        value: 'decenter', // The value to sign
+        type: 'string',
+        name: '签名以证明你是你, ^-^',
+        value: `${now}`,
       },
     ];
     this.getAccounts((err, accounts) => {
-      if (accounts) return this.signMsg(msgParams, accounts[0], callback);
+      if (accounts) return this.signMsg(msgParams, now, accounts[0], callback);
     });
   }
 
-  signMsg(msgParams, from, callback) {
+  signMsg(msgParams, seed, from, callback) {
     this.web3.currentProvider.sendAsync({
       method: 'eth_signTypedData',
       params: [msgParams, from],
@@ -103,13 +104,12 @@ class MyContract {
       if (result.error) {
         return callback(result.error.message);
       }
-      this.signCode = result.result;
-      callback(null, result.result);
+      callback(null, result.result, seed);
     });
   }
 
-  decrypt(code, detail, callback) { // eslint-disable-line
-    request.post(`${constant.encrypt}/decrypt`)
+  decrypt(code, seed, detail, callback) { // eslint-disable-line
+    request.post(`${constant.encrypt}/decrypt/${seed}`)
     .send({
       key: code,
       msg: [
@@ -131,10 +131,10 @@ class MyContract {
     });
   }
 
-  event(hash, code, detail, callback) {
+  event(hash, code, seed, detail, callback) {
     // 如果已经知道code，并且已经取得了一部分内容，只需要取加密部分就好
     if (code && detail && detail.id) {
-      this.decrypt(code, detail, callback);
+      this.decrypt(code, seed, detail, callback);
       return;
     }
     infuraRequest('eth_getTransactionReceipt', `["0x${hash}"]`, (err, res) => {
@@ -159,7 +159,7 @@ class MyContract {
                 infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x3421403f${padding(64, accounts[0].substr(2))}${padding(64, this.toBigNumber(detail.id).toString(16))}"},"latest"]`, (errRank, resRank) => {
                   detail.canRank = resRank.body.result && resRank.body.result.endsWith('1'); // eslint-disable-line
                   if (code) { // 如果知道当前的读者是谁，就尝试获得加密内容
-                    this.decrypt(code, detail, callback);
+                    this.decrypt(code, seed, detail, callback);
                   } else {
                     callback(null, detail);
                   }
