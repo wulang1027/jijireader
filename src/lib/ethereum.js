@@ -8,7 +8,7 @@ const constant = require('./statics');
 const BN = require('bignumber.js');
 
 const infuraRequest = (method, param, callback) => {
-  const url = `https://api.infura.io/v1/jsonrpc/ropsten/${method}?token=6xlgwFuipluDSQ6TvOTn&params=${param}`;
+  const url = `https://api.infura.io/v1/jsonrpc/mainnet/${method}?token=6xlgwFuipluDSQ6TvOTn&params=${param}`;
   // console.log(url);
   request.get(url)
   .end(callback);

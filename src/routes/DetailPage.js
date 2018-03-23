@@ -56,16 +56,17 @@ class IndexPage extends React.Component {
 
   loadEvent(id, code, seed) {
     this.props.dispatch({ type: 'main/save', payload: { loading: true } });
-    eth.event(id, code || this.props.signCode, seed || this.props.seed, this.state.item, (err, item) => {
-      this.props.dispatch({ type: 'main/save', payload: { loading: false } });
-      if (err) {
-        message.error(err);
-      } else {
-        this.setState({
-          item,
-        });
-      }
-    });
+    eth.event(id, code || this.props.signCode, seed ||
+      this.props.seed, this.state.item, (err, item) => {
+        this.props.dispatch({ type: 'main/save', payload: { loading: false } });
+        if (err) {
+          message.error(err);
+        } else {
+          this.setState({
+            item,
+          });
+        }
+      });
   }
 
   like() {
