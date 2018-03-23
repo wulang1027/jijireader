@@ -4,6 +4,8 @@ export function mixPreview(item) {
   return `
 # ${item.title || '这是您的文章预览'}
 
+${item.timestamp ? `&nbsp;*${(new Date(item.timestamp * 1000)).toLocaleString()}*` : ''}
+
 ${item.public || ''}
 
 ---------

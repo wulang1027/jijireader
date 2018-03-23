@@ -141,30 +141,35 @@ class MyContract {
       const decodedLogs = this.abiDecoder.decodeLogs(res.body.result.logs)
       .filter((item) => { return item.name === 'NewInfo'; });
       const item = decodedLogs[0]; // We add NewTag and New Hash, So We should be careful
+
       detail = infolib.decode(hash, item); // eslint-disable-line
-      // 检查当前用户是否已经购买过这个文章，即使购买过，仍然需要给解密服务器授权才可以获取其内容
-      request.get(`https://ipfs.infura.io/ipfs/${detail.hash}`)
-      .end((puberr, pubres) => {
-        detail.public = pubres.text; // eslint-disable-line
-        // 获取内容的动态部分，包括点赞数、踩数、价格和当前地址
-        this.scores({ infos: [detail] }, () => {
-          if (!this.getAccounts) {
-            callback(null, detail);
-            return;
-          }
-          this.getAccounts((errAccount, accounts) => {
-            infuraRequest('eth_call',
-              `[{"to":"${this.addr}", "data":"0xa1a63f65${padding(64, accounts[0].substr(2))}${padding(64, this.toBigNumber(detail.id).toString(16))}"},"latest"]`, (errCall, resCall) => {
-                detail.buyed = resCall.body.result && resCall.body.result.endsWith('1'); // eslint-disable-line
-                infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x3421403f${padding(64, accounts[0].substr(2))}${padding(64, this.toBigNumber(detail.id).toString(16))}"},"latest"]`, (errRank, resRank) => {
-                  detail.canRank = resRank.body.result && resRank.body.result.endsWith('1'); // eslint-disable-line
-                  if (code) { // 如果知道当前的读者是谁，就尝试获得加密内容
-                    this.decrypt(code, seed, detail, callback);
-                  } else {
-                    callback(null, detail);
-                  }
+
+      infuraRequest('eth_getBlockByNumber', `["${res.body.result.blockNumber}", false]`, (errBlock, resBlock) => {
+        detail.timestamp = resBlock.body.result.timestamp; // eslint-disable-line
+        // 检查当前用户是否已经购买过这个文章，即使购买过，仍然需要给解密服务器授权才可以获取其内容
+        request.get(`https://ipfs.infura.io/ipfs/${detail.hash}`)
+        .end((puberr, pubres) => {
+          detail.public = pubres.text; // eslint-disable-line
+          // 获取内容的动态部分，包括点赞数、踩数、价格和当前地址
+          this.scores({ infos: [detail] }, () => {
+            if (!this.getAccounts) {
+              callback(null, detail);
+              return;
+            }
+            this.getAccounts((errAccount, accounts) => {
+              infuraRequest('eth_call',
+                `[{"to":"${this.addr}", "data":"0xa1a63f65${padding(64, accounts[0].substr(2))}${padding(64, this.toBigNumber(detail.id).toString(16))}"},"latest"]`, (errCall, resCall) => {
+                  detail.buyed = resCall.body.result && resCall.body.result.endsWith('1'); // eslint-disable-line
+                  infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x3421403f${padding(64, accounts[0].substr(2))}${padding(64, this.toBigNumber(detail.id).toString(16))}"},"latest"]`, (errRank, resRank) => {
+                    detail.canRank = resRank.body.result && resRank.body.result.endsWith('1'); // eslint-disable-line
+                    if (code) { // 如果知道当前的读者是谁，就尝试获得加密内容
+                      this.decrypt(code, seed, detail, callback);
+                    } else {
+                      callback(null, detail);
+                    }
+                  });
                 });
-              });
+            });
           });
         });
       });

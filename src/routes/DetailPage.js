@@ -56,7 +56,7 @@ class IndexPage extends React.Component {
 
   loadEvent(id, code, seed) {
     this.props.dispatch({ type: 'main/save', payload: { loading: true } });
-    eth.event(id, code || this.props.signCode, seed, this.state.item, (err, item) => {
+    eth.event(id, code || this.props.signCode, seed || this.props.seed, this.state.item, (err, item) => {
       this.props.dispatch({ type: 'main/save', payload: { loading: false } });
       if (err) {
         message.error(err);
@@ -139,7 +139,7 @@ class IndexPage extends React.Component {
                   tx,
                   callback: () => {
                     this.loadEvent(this.props.match.params.id,
-                      this.props.signCode, this.props.seed);
+                      this.props.signCode, this.props.seed).bind(this);
                   },
                 } });
               message.success('文章已购买，但队列确认还需要时间');
@@ -271,7 +271,7 @@ export default connect((state) => {
   return {
     reward: state.main.reward,
     signCode: state.main.signCode,
-    seed: state.main.signCode,
+    seed: state.main.seed,
     balance: state.main.balance,
     price: state.main.price,
     loading: state.main.loading,
