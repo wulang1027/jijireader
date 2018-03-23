@@ -56,9 +56,11 @@ class MyContract {
 
   balance(callback) {
     this.getAccounts((accerr, accounts) => {
-      infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x70a08231000000000000000000000000${accounts[0].substr(2)}"},"latest"]`, (err, res) => {
-        callback(null, res.body.result);
-      });
+      if (accounts.length > 0) {
+        infuraRequest('eth_call', `[{"to":"${this.addr}", "data":"0x70a08231000000000000000000000000${accounts[0].substr(2)}"},"latest"]`, (err, res) => {
+          callback(null, res.body.result);
+        });
+      }
     });
   }
 
@@ -157,6 +159,8 @@ class MyContract {
               return;
             }
             this.getAccounts((errAccount, accounts) => {
+              // need unlock metamask,treat as no account
+              if (accounts.length <= 0) return callback(null, detail);
               infuraRequest('eth_call',
                 `[{"to":"${this.addr}", "data":"0xa1a63f65${padding(64, accounts[0].substr(2))}${padding(64, this.toBigNumber(detail.id).toString(16))}"},"latest"]`, (errCall, resCall) => {
                   detail.buyed = resCall.body.result && resCall.body.result.endsWith('1'); // eslint-disable-line
