@@ -11,6 +11,9 @@ import { connect } from 'dva';
 import Button from 'antd/lib/button';
 import 'antd/lib/button/style';
 
+import Popover from 'antd/lib/popover';
+import 'antd/lib/popover/style';
+
 import { Row } from 'antd/lib/grid';
 import 'antd/lib/grid/style';
 
@@ -154,7 +157,20 @@ class IndexPage extends React.Component {
       >{props.children}
       </span>);
     } else if (cmd === 'howtobuy') {
-      return <Link to={{ pathname: '/detail/e3b356ab67be8453e465fc904d3eefb22d0983420d08be3c9bc40ba4d0aa68ca' }}>{props.children}</Link>;
+      const content = (
+        <div>
+          <p>1、使用 <a href="https://www.google.com/chrome/">Chrome</a> 浏览器</p>
+          <p>2、安装 <a href="https://metamask.io/">MetaMask</a> 钱包</p>
+          <p>3、获取一点点以太币</p>
+          <p>4、重新访问本地址</p>
+          <p>你也可以访问 <Link to={{ pathname: '/detail/e407fd6182c282178d4e85b38ad4254c488ef4facee7fb75eb98b2ffd97079a3' }}>这里</Link> 了解相关背景</p>
+        </div>
+      );
+      return (
+        <Popover content={content} title="如何购买" trigger="click">
+          <span className={styles.link}>{props.children}</span>
+        </Popover>
+      );
     } else if (cmd === 'rank') {
       return (<span style={{ marginTop: 50 }}>
         <Button
